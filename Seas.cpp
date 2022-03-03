@@ -91,9 +91,9 @@ void Seas::takeCoordinates(Pair* pP, int player)//shooting
 	Location** seasP0 = seasP;  //for player 0
 	Location** seasP1 = seasP+100; //for player 1
 
-	PlayerType pt = COMPUTER;
-	if (player == 1) pt = HUMAN;
-	if (pt== COMPUTER)
+	PlayerType pt = HUMAN;
+	if (player == 1) pt = COMPUTER;
+	if (pt== HUMAN)
 	{
 		seasP0 = seasP1;
 	}
@@ -139,6 +139,7 @@ void Seas::place(Carrier* c, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//TODO x->setShipP((Ship*) c);
 			x->setSymbol('C');
+			x->x = CARRIER;
 		}
 	}
 	else
@@ -149,6 +150,7 @@ void Seas::place(Carrier* c, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) c);
 			x->setSymbol('C');
+			x->x = CARRIER;
 		}
 	}
 
@@ -169,6 +171,7 @@ void Seas::place(Battleship* b, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) b);
 			x->setSymbol('B');
+			x->x = BATTLESHIP;
 		}
 	}
 	else
@@ -179,6 +182,7 @@ void Seas::place(Battleship* b, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) b);
 			x->setSymbol('B');
+			x->x = BATTLESHIP;
 		}
 	}
 
@@ -199,6 +203,7 @@ void Seas::place(Cruiser* c, PlayerType player, int row, int col, bool dir)
 			//TODO
 			//x->setShipP(player, CRUISER);//the cruiser of human
 			x->setSymbol('c');
+			x->x = CRUISER;
 		}
 	}
 	else
@@ -209,6 +214,7 @@ void Seas::place(Cruiser* c, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) c);
 			x->setSymbol('c');
+			x->x = CRUISER;
 		}
 	}
 
@@ -228,6 +234,7 @@ void Seas::place(Submarine* s, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) s);
 			x->setSymbol('S');
+			x->x = SUBMARINE;
 		}
 	}
 	else
@@ -238,6 +245,8 @@ void Seas::place(Submarine* s, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) s);
 			x->setSymbol('S');
+			x->x = SUBMARINE;
+
 		}
 	}
 }
@@ -256,6 +265,7 @@ void Seas::place(Destroyer* d, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) d);
 			x->setSymbol('D');
+			x->x = DESTROYER;
 		}
 	}
 	else
@@ -266,6 +276,8 @@ void Seas::place(Destroyer* d, PlayerType player, int row, int col, bool dir)
 			Location* x = *where;
 			//x->setShipP((Ship*) d);
 			x->setSymbol('D');
+			x->x = DESTROYER;
+
 		}
 	}
 }

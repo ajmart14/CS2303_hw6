@@ -19,57 +19,17 @@ Production::~Production() {
 
 bool Production::prod(int argc, char* argv[])
 {
-	bool answer = true;
 	bool whoGoesFirst = true;
 
-	if(argc <=1) //no interesting information
-	{
-		puts("Usage: Didn't find any arguments.");
-		fflush(stdout);
-		answer = false;
-	}
-	else //there is interesting information
-	{
-		printf("Found %d interesting arguments.\n", argc-1);
-		fflush(stdout);
+	whoGoesFirst = whoseFirst(argc , argv);
 
-
-		for(int i = 1; i<argc; i++) //don't want to read argv[0]
-		{//argv[i] is a string
-			//in this program our arguments are NR, NC, gens, filename, print and pause
-			//because pause is optional, argc could be 6 or 7
-			//because print is optional (if print is not present, neither is pause) argc could be 5
-			switch(i)
-			{
-			case 1:
-				//this is
-
-				if(strlen(argv[i])>=2)
-				{
-					puts("string is too long.");
-					fflush(stdout);
-					answer = false;
-				}
-				else
-				{
-					whoGoesFirst = (bool)strtol(argv[i], NULL, 10);
-					printf("result of who goes first was was %d.\n", whoGoesFirst);
-					fflush(stdout);
-				}
-				break;
-
-
-			default:
-				puts("Unexpected argument count."); fflush(stdout);
-				answer = false;
-				break;
-			}//end of switch
-		}//end of for loop on argument count
 		puts("after reading arguments"); fflush(stdout);
+
+		puts("The Game is about to begin \n");
 
 
 		//be the Battleship agent
-		bool whoseTurn = whoGoesFirst;
+		bool whoseTurn = !whoGoesFirst;
 		//Create the seas
 		Seas* Cs = new Seas();
 		//create the fleets
@@ -86,11 +46,13 @@ bool Production::prod(int argc, char* argv[])
 		}
 		else
 		{
+			srand(time(NULL));
 			doPlacing(Cs, fleets, HUMAN); //for human
 		}
 		puts("Finished Human Placement");
 		fflush(stdout);
 
+		srand(time(NULL));
 		doPlacing(Cs, fleets, COMPUTER); //for computer
 
 		puts("Finished Computer Placement");
@@ -123,7 +85,7 @@ bool Production::prod(int argc, char* argv[])
 				//Pair* newP = Cs->getCoordinates();
 				//find out whether any ship was sunk
 
-				fleets->sinkShips(0);
+				fleets->sinkShips(1);
 				//find out whether the computer has now lost
 				done = hasWon(fleets);
 				//if so, done
@@ -141,7 +103,7 @@ bool Production::prod(int argc, char* argv[])
 				//tell the seas about the coordinates
 				Cs->takeCoordinates(pP, 1);//0 means computer player
 				//find out whether any ship was sunk
-				fleets->sinkShips(1);
+				fleets->sinkShips(0);
 				//find out whether the human has now lost
 				//if so, done
 				done = hasWon(fleets); //because all the ships are sunk
@@ -155,11 +117,60 @@ bool Production::prod(int argc, char* argv[])
 
 		//print who won when done
 		puts("Game ended");
-		Cs->displaySeas();
-
-	}//end of else we have good arguments
 
 	return whoGoesFirst;
+}
+
+bool Production::whoseFirst(int argc, char* argv[])
+{
+	bool answer = true;
+
+	if(argc <=1) //no interesting information
+	{
+		puts("Usage: Didn't find any arguments.");
+		fflush(stdout);
+		answer = false;
+	}
+	else //there is interesting information
+	{
+		printf("Found %d interesting arguments.\n", argc-1);
+		fflush(stdout);
+
+
+		for(int i = 1; i<argc; i++) //don't want to read argv[0]
+		{//argv[i] is a string
+			//in this program our arguments are NR, NC, gens, filename, print and pause
+			//because pause is optional, argc could be 6 or 7
+			//because print is optional (if print is not present, neither is pause) argc could be 5
+			switch(i)
+			{
+			case 1:
+				//this is
+
+				if(strlen(argv[i])>=2)
+				{
+					puts("string is too long.");
+					fflush(stdout);
+					answer = false;
+				}
+				else
+				{
+					answer = (bool)strtol(argv[i], NULL, 10);
+					printf("result of who goes first was was %d.\n", answer);
+					fflush(stdout);
+				}
+				break;
+
+
+			default:
+				puts("Unexpected argument count."); fflush(stdout);
+				answer = false;
+				break;
+			}//end of switch
+		}//end of for loop on argument count
+	}
+	return answer;
+
 }
 
 bool Production::getYesNo(char* query)
@@ -326,8 +337,8 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 	int row = -1;
 	Carrier* c = new Carrier();
 
-	bool horizontal = rand()%2; // 0 is vertical 1 is horizontal
-	if(horizontal)
+	bool horizontalc = rand()%2; // 0 is vertical 1 is horizontal
+	if(horizontalc)
 	{
 
 		col = rand()%6;
@@ -338,17 +349,17 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 		row = rand()%6;
 		col = rand()%9;
 	}
-	while(!Cs->isFeasible(CARRIER, x,row, col, horizontal));
-	Cs->place(c, x, row, col, horizontal);
+	while(!Cs->isFeasible(CARRIER, x,row, col, horizontalc));
+	Cs->place(c, x, row, col, horizontalc);
 
-	srand((time(NULL)));
+
 	Battleship* b = new Battleship();
+
+	bool horizontalb = rand()%2;
 	do
 		{
 
-		bool horizontal = rand()%2;
-
-			if(horizontal) // 0 is vertical 1 is horizontal
+			if(horizontalb) // 0 is vertical 1 is horizontal
 			{
 				col = rand()%7;
 
@@ -365,17 +376,17 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 				//set as many rows southward for the size of a battleship
 			}
 		}
-	while(!Cs->isFeasible(BATTLESHIP, x,row, col, horizontal));
-	Cs->place(b, x, row, col, horizontal);
+	while(!Cs->isFeasible(BATTLESHIP, x,row, col, horizontalb));
+	Cs->place(b, x, row, col, horizontalb);
 	// Cs->displaySeas();
 
-	srand((time(NULL)));
-	Cruiser* cr = new Cruiser();
-		do
-		{
 
-			bool horizontal = rand()%2;
-			if(horizontal)
+	Cruiser* cr = new Cruiser();
+
+	bool horizontalcr = rand()%2;
+	do
+		{
+			if(horizontalcr)
 			{
 				col = rand()%8;
 				row = rand()%9;
@@ -389,16 +400,15 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 				col = rand()%9;
 				//set as many rows southward for the size of a battleship
 			}
-		}while(!Cs->isFeasible(CRUISER, x,row, col, horizontal)); //why when not feasible, do we print 3 times?
-		Cs->place(cr, x, row, col, horizontal);
+		}while(!Cs->isFeasible(CRUISER, x,row, col, horizontalcr)); //why when not feasible, do we print 3 times?
+		Cs->place(cr, x, row, col, horizontalcr);
 
-		srand((time(NULL)));
+
 		Submarine* s = new Submarine();
-			do
+		bool horizontals = rand()%2;
+		do
 			{
-
-				bool horizontal = rand()%2;
-				if(horizontal)
+				if(horizontals)
 				{
 					col = rand()%8;
 					row = rand()%9;
@@ -412,16 +422,14 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 					col = rand()%9;
 					//set as many rows southward for the size of a battleship
 				}
-			}while(!Cs->isFeasible(SUBMARINE, x,row, col, horizontal)); //why when not feasible, do we print 3 times?
-			Cs->place(s, x, row, col, horizontal);
+			}while(!Cs->isFeasible(SUBMARINE, x,row, col, horizontals)); //why when not feasible, do we print 3 times?
+			Cs->place(s, x, row, col, horizontals);
 
-			srand((time(NULL)));
 			Destroyer* d = new Destroyer();
-				do
+			bool horizontald = rand()%2;
+			do
 				{
-
-					bool horizontal = rand()%2;
-					if(horizontal)
+					if(horizontald)
 					{
 						col = rand()%9;
 						row = rand()%9;
@@ -435,68 +443,11 @@ void Production::doPlacing(Seas* Cs, Fleets* fleets, PlayerType x)
 						col = rand()%9;
 						//set as many rows southward for the size of a battleship
 					}
-				}while(!Cs->isFeasible(DESTROYER, x,row, col, horizontal)); //why when not feasible, do we print 3 times?
-				Cs->place(d, x, row, col, horizontal);
+				}while(!Cs->isFeasible(DESTROYER, x,row, col, horizontald)); //why when not feasible, do we print 3 times?
+				Cs->place(d, x, row, col, horizontald);
 				Cs->displaySeas();
 				puts("done auto placing ships.");
 
-}
-
-bool Production::isFeasible(Seas* Cs, int row, int col, int horiz, ShipType s, PlayerType pt)
-{
-	bool answer = true;
-
-	//based on ship type, we know how many places to check
-	//for each of those places, if they not symbol ~, then it's not feasible
-	int size = -1;
-	Location** seasP0 = Cs->getSeasP();  //for player 0
-	Location** seasP1 = seasP0+100; //for player 1
-	if (pt==COMPUTER)
-	{
-		seasP0 = seasP1;
-	}
-	switch(s)
-	{
-	case CARRIER:
-		size = 5;
-		break;
-	case BATTLESHIP:
-		size = 4;
-		break;
-	case CRUISER:
-		size = 3;
-		break;
-	case SUBMARINE:
-		size = 3;
-		break;
-	case DESTROYER:
-		size = 2;
-		break;
-	default:
-		puts("Unexpected ship type");
-	}
-	for(int i = 0; i<size; i++)
-	{
-		if(horiz)
-		{
-			col = col+i;
-		}
-		else
-		{
-			row = row+1;
-		}
-		Location** where = seasP0 + row*size+col;
-		//is there anything other than ~ there for symbol?
-		Location* x = *where;
-		if(x->getSymbol() != '~')
-		{
-			answer = false;
-		}
-	}
-	fflush(stdin);
-	fflush(stdout);
-	printf("For that ship of size %d, placement is(1) / is not(0) %d feasible.\n", size, answer);
-	return answer;
 }
 
 bool Production::hasWon(Fleets* fleet){
@@ -525,7 +476,7 @@ bool Production::hasWon(Fleets* fleet){
 		howManyShips0 = howManyCarrier0 + howManyBattleship0 + howManyCruiser0 + howManySub0 + howManyDestroyer0;
 
 
-	printf("%i \n", howManyShips0); fflush(stdout);
+	printf("PLAYER 0 HAS %i SHIPS LEFT \n", howManyShips0); fflush(stdout);
 
 
 		howManyCarrier1 = fleet->getHowMany(1, CARRIER);
@@ -536,17 +487,17 @@ bool Production::hasWon(Fleets* fleet){
 
 	howManyShips1 = howManyCarrier1 + howManyBattleship1 + howManyCruiser1 + howManySub1 + howManyDestroyer1;
 
-	printf("%i \n", howManyShips1); fflush(stdout);
+	printf("PLAYER 1 HAS %i SHIPS LEFT \n", howManyShips1); fflush(stdout);
 
 	if(howManyShips0 == 0){
 
 		ok = true;
-		printf("Player 0 is the winner!");
+		printf("Player 1 is the winner! \n");
 	}
 	if(howManyShips1 == 0){
 
 		ok = true;
-		printf("Player 1 is the winner!");
+		printf("Player 0 is the winner! \n");
 	}
 
 	else{

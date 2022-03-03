@@ -94,6 +94,9 @@ int Fleets::getHowMany(int player, ShipType s)
 
 void Fleets::sinkShips(int player)
 {
+	int sunkShipsA = 0;
+	int sunkShipsB = 0;
+
 	switch(player){
 	case 0:
 
@@ -132,11 +135,21 @@ void Fleets::sinkShips(int player)
 		}
 		break;
 	}
+
+
+	sunkShipsA = howManyCarriersA + howManyBattleshipsA + howManyCruisersA + howManySubmarinesA + howManyDestroyersA;
+	sunkShipsB = howManyCarriersB + howManyBattleshipsB + howManyCruisersB + howManySubmarinesB + howManyDestroyersB;
+
+	sunkShipsA = 5 - sunkShipsA;
+	sunkShipsB = 5 - sunkShipsB;
+
+	printf("%i of Player 0's ships sunk \n", sunkShipsA);
+	printf("%i of Player 1's ships sunk \n", sunkShipsB);
 }
 
 void Fleets::lostHull(int player, Pair* pP, Location* loc){
 
-	if(player == 0){
+	if(player == 1){
 
 		switch(loc->x)
 		{
@@ -162,11 +175,12 @@ void Fleets::lostHull(int player, Pair* pP, Location* loc){
 		case DESTROYER:
 			d0->hitsSustained+=1;
 			loc->hasBeenShot = true;
+
 			break;
 
 		}
 	}
-	else{
+	if(player == 0){
 
 		switch(loc->x)
 		{
@@ -192,6 +206,7 @@ void Fleets::lostHull(int player, Pair* pP, Location* loc){
 		case DESTROYER:
 			d1->hitsSustained+=1;
 			loc->hasBeenShot = true;
+		//	printf("Destroyer has %i hits", d1->hitsSustained);
 			break;
 		}
 	}
