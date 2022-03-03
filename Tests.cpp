@@ -18,51 +18,52 @@ Tests::~Tests() {
 bool Tests::tests() {
 	bool answer = true;
 	// This will invoke the other tests
-	//bool ok1 = testWhoGoesFirst(); //about command line argument
+	bool ok1 = testWhoGoesFirst(); //about command line argument
 	bool ok2 = testCreateSeas();
 	bool ok5 = testGetYesNo(); //place own fleet
 	bool ok3 = testDisplaySeasInConsole();
 	bool ok4 = testCreateFleets();
 	bool ok6 = testEnterCoordinates();// same for placing ships and shooting ships
 	bool ok7 = testLostHull();
-	bool ok8 = testLostGame();
 	bool ok9 = testAnnounceWinner();
 	bool ok10 = testGetHumanSetup();
 	bool ok11 = testDoHumanSetup();
 	bool ok12 = testFeasibilityCheck();
-	answer = ok2 && ok3 && ok4 && ok5 && ok6 && ok7 && ok8 && ok9 && ok10 &&ok11&&ok12;
+	answer = ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7 && ok9 && ok10 &&ok11&&ok12;
+	puts("Finished Testing!"); fflush(stdout);
 	return answer;
 }
-//bool Tests::testWhoGoesFirst()  // needs update****
-//{
-//
-//	puts("starting testWhoGoesFirst"); fflush(stdout);
-//	bool ok = false;
-//	bool  rightAnswer = true;
-//	int argc =2;
-//	char** argv = (char**) malloc (2*sizeof(char*));
-//	char* part0 = "Battleship";
-//	char* part1 = "1";  //whoGoesFirst 1 is true, 0 is false
-//	argv[0] = part0;
-//	argv[1] = part1;
-//	Production* pP = new Production();
-//	//set arc, set argv to known command line, so we know the right answer
-//	//make argv so that the right answer is in it (as a string)
-//	//trial
-//	bool answer = pP->prod(argc, argv);  //returns the whose turn boolean
-//	ok = (rightAnswer == answer);
-//	//render judgment
-//	if(ok)
-//	{
-//		puts("who goes first passed its test");
-//	}
-//	else
-//	{
-//		puts("who goes first did not pass its test");
-//	}
-//
-//	return ok;
-//}
+bool Tests::testWhoGoesFirst()  // needs update****
+{
+
+	puts("starting testWhoGoesFirst"); fflush(stdout);
+	bool ok = false;
+	bool  rightAnswer = true;
+	int argc =2;
+	char** argv = (char**) malloc (2*sizeof(char*));
+	char* part0 = "Battleship";
+	char* part1 = "1";  // 1 is player 1 0 is player 0
+	argv[0] = part0;
+	argv[1] = part1;
+	Production* pP = new Production();
+
+	//set arc, set argv to known command line, so we know the right answer
+	//make argv so that the right answer is in it (as a string)
+	//trial
+	bool answer = pP->whoseFirst(argc, argv);  //returns the whose turn boolean
+	ok = (rightAnswer == answer);
+	//render judgment
+	if(ok)
+	{
+		puts("who goes first passed its test");
+	}
+	else
+	{
+		puts("who goes first did not pass its test");
+	}
+
+	return ok;
+}
 bool Tests::testCreateSeas()//constructs seas, it has a known size 10x10 per player (2 players),
 //give it an attribute of its size, and ask its size
 {
@@ -121,6 +122,7 @@ bool Tests::testGetYesNo()
 bool Tests::testDisplaySeasInConsole()//usual 2D display
 {
 	bool ok = true;
+	bool ok1 = true;
 	puts("starting testDisplaySeas");fflush(stdout);
 
 	//test case 1, seas are empty
@@ -132,10 +134,16 @@ bool Tests::testDisplaySeasInConsole()//usual 2D display
 	Production* prodP = new Production();
 	ok = prodP->getYesNo("Does it look like two seas of 10 x 10 of ~ ?");
 	//tests case2, there should be something there
-	//test case 2:
-	//TODO more test cases here
+
+	Fleets* fleets = new Fleets();
+	Cs->setFleetsPtr(fleets);
+	prodP->doPlacing(Cs, fleets, HUMAN);
+	prodP->doPlacing(Cs, fleets, COMPUTER);
+	Cs->displaySeas();
+	ok1 = prodP->getYesNo("Does it look like two seas each with 5 ships?");
+
 	//render judgment
-	if(ok)
+	if(ok == ok1)
 	{
 
 		puts("display seas passed its test");
@@ -300,5 +308,47 @@ bool  Tests::testDoHumanSetup()
 bool Tests::testFeasibilityCheck()
 {
 	bool ok = true;
+	int row = 3;
+	int col = 3;
+	Seas* Cs = new Seas();
+
+	Location** seasP0 = Cs->seasP;
+	Location** seasP1 = Cs->seasP+100;
+	Pair* nP = new Pair();
+		nP->row = row;
+		nP->col = col;
+
+	Location** where0 = seasP0 + row*Cs->size+col;
+	Location* x0 = *where0;
+	x0->setSymbol('T');
+
+	Location** where1 = seasP1 + row*Cs->size+col;
+	Location* x1 = *where1;
+	x1->setSymbol('T');
+
+
+	bool dir = true; //horizontal
+
+	bool ok1 = Cs->isFeasible(CARRIER, HUMAN, row, col, dir);
+	bool ok2 = Cs->isFeasible(CARRIER, COMPUTER, row, col, dir);
+	bool ok3 = Cs->isFeasible(BATTLESHIP, HUMAN, row, col, dir);
+	bool ok4 = Cs->isFeasible(BATTLESHIP, COMPUTER, row, col, dir);
+	bool ok5 = Cs->isFeasible(CRUISER, HUMAN, row, col, dir);
+	bool ok6 = Cs->isFeasible(CRUISER, COMPUTER, row, col, dir);
+	bool ok7 = Cs->isFeasible(SUBMARINE, HUMAN, row, col, dir);
+	bool ok8 = Cs->isFeasible(SUBMARINE, COMPUTER, row, col, dir);
+	bool ok9 = Cs->isFeasible(DESTROYER, HUMAN, row, col, dir);
+	bool ok10 = Cs->isFeasible(DESTROYER, COMPUTER, row, col, dir);
+	ok = (ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7 && ok8 && ok9 && ok10);
+
+	if(!ok)
+	{
+
+		puts("isFeasible passed its test");
+	}
+	else
+	{
+		puts("isFeasable did not pass its test");
+	}
 	return ok;
 }

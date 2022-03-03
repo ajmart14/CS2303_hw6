@@ -28,11 +28,10 @@ public:
 	Production();
 	virtual ~Production();
 	bool prod(int argc, char* argv[]);
-
+	bool whoseFirst(int argc, char* argv[]);
 	bool getYesNo(char* query);
 	void getHumanSetup(Seas* Cs, Fleets* fleets);
 	void doPlacing(Seas* Cs, Fleets* fleets, PlayerType);
-	bool isFeasible(Seas*, int row, int col, int horiz, ShipType s, PlayerType );
 	bool hasWon(Fleets* fleet);
 
 private:

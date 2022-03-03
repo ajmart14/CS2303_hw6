@@ -10,6 +10,7 @@
 Destroyer::Destroyer() {
 	// TODO Auto-generated constructor stub
 
+	hitsSustained = 0;
 }
 
 Destroyer::~Destroyer() {
